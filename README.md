@@ -7,6 +7,7 @@ Interface web para o sistema de emissão de **NFS-e** (Nota Fiscal de Serviço E
 - **React 18** + **TypeScript**
 - **Ant Design 5** (componentes UI)
 - **SheetJS (xlsx)** (leitura de planilhas)
+- **jsPDF + autoTable** (geração de PDF)
 - **Create React App** (toolchain)
 
 ## 📋 Pré-requisitos
@@ -81,7 +82,7 @@ O sistema exige autenticação. Credenciais padrão:
 - Formulário para emissão de RPS em lote
 - Processamento assíncrono no backend
 
-### 🧪 Emitir RPS Teste (Síncrono)
+### ⚡ Emitir RPS
 - **Habilitado somente após upload da planilha**
 - Dados preenchidos automaticamente da planilha:
   - `razaoSocial` ← Responsável
@@ -97,13 +98,21 @@ O sistema exige autenticação. Credenciais padrão:
 - Filtros por situação e status RPS
 - Linhas com cores visuais por status
 
-### 🔐 Importar Certificado Digital
+### 📊 RPS Emitidos
+- Listagem de todos os RPS salvos no banco
+- Filtro por **ano** e **mês da cobrança** (competência)
+- Cards de resumo: total, valor, pendentes, enviados, falhas
+- **Geração de PDF** (relatório landscape A4)
+- Coluna de competência (MM/AAAA)
+
+### 🔐 Importar Certificado Digital (ADMIN e GESTOR)
 - Upload de arquivo `.p12` ou `.pfx`
 - Informar nome e senha do certificado
 
-### 👥 Gestão de Usuários (somente ADMIN)
+### 👥 Gestão de Usuários (ADMIN e GESTOR)
 - Listar, criar, editar e remover usuários
-- Campos: username, senha, nome, CNPJ, perfil (ADMIN/USER)
+- Campos: username, senha, nome, CNPJ, perfil (ADMIN/GESTOR/USER)
+- **GESTOR**: CNPJ preenchido automaticamente, só cria USER/GESTOR, opção ADMIN oculta
 - Vários usuários podem pertencer à mesma empresa (mesmo CNPJ)
 - CNPJ formatado automaticamente na exibição
 
@@ -115,6 +124,7 @@ src/
 │   ├── CobrancaTable.tsx        # Tabela de cobranças com filtros
 │   ├── FileUpload.tsx           # Área de upload de planilha
 │   ├── ResumoCard.tsx           # Cards com resumo financeiro
+│   ├── RpsListagem.tsx          # Listagem de RPS com PDF
 │   ├── UsuarioManager.tsx       # CRUD de usuários
 │   └── nfse/
 │       ├── ConsultaLote.tsx     # Consultar lote RPS
@@ -189,7 +199,7 @@ notafacil.adapterbot.cloud {
 
 ## 📌 Versão
 
-**v1.0.0** — MVP com upload de planilha, emissão de RPS, autenticação JWT e gestão de usuários.
+**v1.1.0** — Perfil GESTOR, listagem de RPS com filtro por competência, geração de PDF, favicon customizado.
 
 ## 📄 Licença
 
