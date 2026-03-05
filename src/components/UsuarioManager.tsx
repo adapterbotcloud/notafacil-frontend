@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Button, Modal, Form, Input, Select, message, Space, Popconfirm, Tag } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
+import { useAuth } from '../contexts/AuthContext';
 import { listarUsuarios, criarUsuario, atualizarUsuario, deletarUsuario, UsuarioDTO } from '../services/usuarioApi';
 
 const UsuarioManager: React.FC = () => {
@@ -9,6 +10,7 @@ const UsuarioManager: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editando, setEditando] = useState<UsuarioDTO | null>(null);
   const [form] = Form.useForm();
+  const { user, isGestor } = useAuth();
 
   const carregar = async () => {
     setLoading(true);
@@ -140,8 +142,8 @@ const UsuarioManager: React.FC = () => {
           <Form.Item name="nome" label="Nome Completo" rules={[{ required: true, message: 'Obrigatório' }]}>
             <Input placeholder="Nome do usuário" />
           </Form.Item>
-          <Form.Item name="cnpj" label="CNPJ da Empresa" rules={[{ required: true, message: 'Obrigatório' }]}>
-            <Input placeholder="00.000.000/0000-00" />
+          <Form.Item name="cnpj" label="CNPJ da Empresa" rules={[{ required: true, message: 'Obrigatório' }]} initialValue={isGestor ? user?.cnpj : undefined}>
+            <Input placeholder="00.000.000/0000-00" disabled={isGestor} />
           </Form.Item>
           <Form.Item name="role" label="Perfil" rules={[{ required: true }]} initialValue="USER">
             <Select>
