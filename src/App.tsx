@@ -11,6 +11,7 @@ import {
   LogoutOutlined,
   UserOutlined,
   TeamOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons';
 import ptBR from 'antd/locale/pt_BR';
 import { useAuth } from './contexts/AuthContext';
@@ -25,6 +26,7 @@ import EmitirRps from './components/nfse/EmitirRps';
 import EmitirRpsTeste from './components/nfse/EmitirRpsTeste';
 import ImportarCertificado from './components/nfse/ImportarCertificado';
 import UsuarioManager from './components/UsuarioManager';
+import RpsListagem from './components/RpsListagem';
 import { Cobranca, ResumoFinanceiro } from './types/Cobranca';
 
 const { Header, Content } = Layout;
@@ -87,6 +89,12 @@ const AppContent: React.FC = () => {
       icon: <ExperimentOutlined />,
       disabled: !hasUpload,
       children: <EmitirRpsTeste cobrancas={cobrancas} resumo={resumo} />,
+    },
+    {
+      key: 'rps-listagem',
+      label: 'RPS Emitidos',
+      icon: <FileTextOutlined />,
+      children: <RpsListagem />,
     },
     {
       key: 'certificado',
