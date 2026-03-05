@@ -60,14 +60,8 @@ const AppContent: React.FC = () => {
       ),
     },
     {
-      key: 'emitir',
-      label: 'Emitir RPS',
-      icon: <ThunderboltOutlined />,
-      children: <EmitirRps />,
-    },
-    {
       key: 'emitir-teste',
-      label: hasUpload ? 'Emitir RPS (Teste)' : 'Emitir RPS (Teste) ⚠️',
+      label: hasUpload ? 'Emitir RPS' : 'Emitir RPS ⚠️',
       icon: <ExperimentOutlined />,
       disabled: !hasUpload,
       children: <EmitirRpsTeste cobrancas={cobrancas} resumo={resumo} />,
