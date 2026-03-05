@@ -25,9 +25,9 @@ function extrairMesAno(dataEnvio: string): string {
   return dataEnvio;
 }
 
-function buildDiscriminacao(titulo: string, nomeAluno: string, dataEnvio: string): string {
+function buildDiscriminacao(titulo: string, dataEnvio: string): string {
   const mesAno = extrairMesAno(dataEnvio);
-  return mesAno ? `${titulo} - ${nomeAluno} - ${mesAno}` : `${titulo} - ${nomeAluno}`;
+  return mesAno ? `${titulo} - ${mesAno}` : titulo;
 }
 
 const formatCurrency = (value: number) =>
@@ -139,7 +139,7 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
       key: 'discriminacao',
       width: 280,
       ellipsis: true,
-      render: (_: any, record: CobrancaComStatus) => buildDiscriminacao(record.titulo, record.nomeAluno, record.dataEnvio),
+      render: (_: any, record: CobrancaComStatus) => buildDiscriminacao(record.titulo, record.dataEnvio),
     },
     {
       title: 'Valor Pago',
@@ -211,7 +211,7 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
         anoCobranca,
         servico: {
           valorServicos: c.valorPago,
-          discriminacao: buildDiscriminacao(c.titulo, c.nomeAluno, c.dataEnvio),
+          discriminacao: buildDiscriminacao(c.titulo, c.dataEnvio),
         },
         tomador: {
           cpf: c.cpfResponsavel.replace(/[.\-\/]/g, ''),
