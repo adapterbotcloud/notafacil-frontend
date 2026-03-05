@@ -149,7 +149,7 @@ const UsuarioManager: React.FC = () => {
             <Select>
               <Select.Option value="USER">USER</Select.Option>
               <Select.Option value="GESTOR">GESTOR</Select.Option>
-              <Select.Option value="ADMIN">ADMIN</Select.Option>
+              {!isGestor && <Select.Option value="ADMIN">ADMIN</Select.Option>}
             </Select>
           </Form.Item>
         </Form>
