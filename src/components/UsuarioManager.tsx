@@ -81,7 +81,7 @@ const UsuarioManager: React.FC = () => {
       key: 'role',
       width: 100,
       render: (role: string) => (
-        <Tag color={role === 'ADMIN' ? 'red' : 'blue'}>{role}</Tag>
+        <Tag color={role === 'ADMIN' ? 'red' : role === 'GESTOR' ? 'orange' : 'blue'}>{role}</Tag>
       ),
     },
     {
@@ -146,6 +146,7 @@ const UsuarioManager: React.FC = () => {
           <Form.Item name="role" label="Perfil" rules={[{ required: true }]} initialValue="USER">
             <Select>
               <Select.Option value="USER">USER</Select.Option>
+              <Select.Option value="GESTOR">GESTOR</Select.Option>
               <Select.Option value="ADMIN">ADMIN</Select.Option>
             </Select>
           </Form.Item>

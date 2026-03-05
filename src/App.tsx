@@ -33,7 +33,7 @@ const { Header, Content } = Layout;
 const { Title, Text } = Typography;
 
 const AppContent: React.FC = () => {
-  const { user, logout, isAuthenticated, isAdmin } = useAuth();
+  const { user, logout, isAuthenticated, isAdmin, isGestor } = useAuth();
   const [resumo, setResumo] = useState<ResumoFinanceiro | null>(null);
   const [cobrancas, setCobrancas] = useState<Cobranca[]>([]);
 
@@ -72,13 +72,13 @@ const AppContent: React.FC = () => {
       icon: <FileTextOutlined />,
       children: <RpsListagem />,
     },
-    {
+    ...((isAdmin || isGestor) ? [{
       key: 'certificado',
       label: 'Certificado',
       icon: <SafetyCertificateOutlined />,
       children: <ImportarCertificado />,
-    },
-    ...(isAdmin ? [{
+    }] : []),
+    ...((isAdmin || isGestor) ? [{
       key: 'usuarios',
       label: 'Usuários',
       icon: <TeamOutlined />,
