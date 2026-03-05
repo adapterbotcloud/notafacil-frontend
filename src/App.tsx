@@ -122,7 +122,7 @@ const AppContent: React.FC = () => {
         justifyContent: 'space-between',
         boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
       }}>
-        <Title level={3} style={{ margin: 0, color: '#1677ff' }}>
+        <Title level={3} style={{ margin: 0, color: '#1677ff', cursor: 'pointer' }} onClick={() => window.location.reload()}>
           📝 NotaFácil
         </Title>
         <Space>
