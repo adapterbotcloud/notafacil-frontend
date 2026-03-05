@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Tag, Select, Space, Statistic, Row, Col, message } from 'antd';
-import { FileTextOutlined, DollarOutlined } from '@ant-design/icons';
+import { Card, Table, Tag, Select, Space, Statistic, Row, Col, Button, message } from 'antd';
+import { FileTextOutlined, DollarOutlined, FilePdfOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'https://notafacil-api.adapterbot.cloud/api/v1';
 
@@ -52,7 +54,9 @@ const statusMap: Record<number, { label: string; color: string }> = {
   3: { label: 'Falha', color: 'red' },
 };
 
-const meses = [
+const statusLabel = (s: number) => (statusMap[s] || { label: `${s}` }).label;
+
+const mesesNome = [
   '', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
 ];
@@ -72,7 +76,6 @@ const RpsListagem: React.FC = () => {
   const [ano, setAno] = useState<number | null>(null);
   const [mes, setMes] = useState<number | null>(null);
 
-  // Carregar resumo de anos/meses
   useEffect(() => {
     fetch(`${API_BASE}/rps/resumo`, { headers: headers() })
       .then(r => r.json())
@@ -86,7 +89,6 @@ const RpsListagem: React.FC = () => {
       .catch(() => {});
   }, []);
 
-  // Carregar RPS quando mudar filtro
   useEffect(() => {
     if (!ano) return;
     setLoading(true);
@@ -95,10 +97,8 @@ const RpsListagem: React.FC = () => {
 
     fetch(url, { headers: headers() })
       .then(r => r.json())
-      .then(data => {
-        setRpsList(data);
-      })
-      .catch(err => message.error('Erro ao carregar RPS'))
+      .then(data => setRpsList(data))
+      .catch(() => message.error('Erro ao carregar RPS'))
       .finally(() => setLoading(false));
   }, [ano, mes]);
 
@@ -110,16 +110,83 @@ const RpsListagem: React.FC = () => {
   const totalEnviados = rpsList.filter(r => r.status === 2).length;
   const totalFalhas = rpsList.filter(r => r.status === 3).length;
 
+  const gerarPdf = () => {
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+    const competencia = mes ? `${mesesNome[mes]}/${ano}` : `${ano}`;
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Relatorio de RPS Emitidos', 14, 15);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Competencia: ${competencia}`, 14, 22);
+    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 28);
+
+    doc.setFontSize(10);
+    doc.text(`Total: ${rpsList.length} RPS  |  Valor: ${formatCurrency(totalValor)}  |  Pendentes: ${totalPendentes}  |  Enviados: ${totalEnviados}  |  Falhas: ${totalFalhas}`, 14, 35);
+
+    const tableData = rpsList.map(r => [
+      r.idCobranca || '',
+      r.tomadorRazaoSocial || '',
+      formatCpf(r.tomadorCpf),
+      r.discriminacao || '',
+      formatCurrency(r.valorServicos),
+      statusLabel(r.status),
+      r.protocolo || '',
+      r.mesCobranca && r.anoCobranca ? `${String(r.mesCobranca).padStart(2, '0')}/${r.anoCobranca}` : '',
+    ]);
+
+    autoTable(doc, {
+      startY: 40,
+      head: [['ID Cobr.', 'Tomador', 'CPF', 'Discriminacao', 'Valor', 'Status', 'Protocolo', 'Compet.']],
+      body: tableData,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [22, 119, 255], textColor: 255, fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 18 },
+        1: { cellWidth: 50 },
+        2: { cellWidth: 30 },
+        3: { cellWidth: 80 },
+        4: { cellWidth: 25, halign: 'right' as const },
+        5: { cellWidth: 20, halign: 'center' as const },
+        6: { cellWidth: 30 },
+        7: { cellWidth: 20, halign: 'center' as const },
+      },
+      didParseCell: (data: any) => {
+        if (data.section === 'body' && data.column.index === 5) {
+          const val = data.cell.raw;
+          if (val === 'Enviado') data.cell.styles.textColor = [34, 139, 34];
+          else if (val === 'Falha') data.cell.styles.textColor = [220, 20, 60];
+          else if (val === 'Pendente') data.cell.styles.textColor = [184, 134, 11];
+        }
+      },
+    });
+
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`NotaFacil - Pagina ${i} de ${pageCount}`, 14, doc.internal.pageSize.height - 8);
+    }
+
+    const filename = mes
+      ? `RPS_${ano}_${String(mes).padStart(2, '0')}.pdf`
+      : `RPS_${ano}.pdf`;
+    doc.save(filename);
+    message.success(`PDF gerado: ${filename}`);
+  };
+
   const columns: ColumnsType<RpsItem> = [
     {
-      title: 'ID Cobrança',
+      title: 'ID Cobranca',
       dataIndex: 'idCobranca',
       key: 'idCobranca',
       width: 110,
-      render: v => v || '—',
+      render: v => v || '',
     },
     {
-      title: 'Número',
+      title: 'Numero',
       dataIndex: 'numero',
       key: 'numero',
       width: 150,
@@ -139,7 +206,7 @@ const RpsListagem: React.FC = () => {
       render: (v: string) => formatCpf(v),
     },
     {
-      title: 'Discriminação',
+      title: 'Discriminacao',
       dataIndex: 'discriminacao',
       key: 'discriminacao',
       width: 280,
@@ -169,20 +236,20 @@ const RpsListagem: React.FC = () => {
       dataIndex: 'protocolo',
       key: 'protocolo',
       width: 140,
-      render: v => v || '—',
+      render: v => v || '',
     },
     {
-      title: 'Competência',
+      title: 'Competencia',
       key: 'competencia',
       width: 120,
-      render: (_: any, r: RpsItem) => r.mesCobranca && r.anoCobranca ? `${String(r.mesCobranca).padStart(2, '0')}/${r.anoCobranca}` : '—',
+      render: (_: any, r: RpsItem) => r.mesCobranca && r.anoCobranca ? `${String(r.mesCobranca).padStart(2, '0')}/${r.anoCobranca}` : '',
     },
     {
       title: 'Criado em',
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 170,
-      render: (v: string) => v ? new Date(v).toLocaleString('pt-BR') : '—',
+      render: (v: string) => v ? new Date(v).toLocaleString('pt-BR') : '',
     },
   ];
 
@@ -201,7 +268,7 @@ const RpsListagem: React.FC = () => {
           ))}
         </Select>
         <Select
-          placeholder="Mês"
+          placeholder="Mes"
           value={mes}
           onChange={setMes}
           style={{ width: 160 }}
@@ -210,10 +277,19 @@ const RpsListagem: React.FC = () => {
           {mesesDisponiveis.map(m => {
             const qtd = resumo.find(r => r.ano === ano && r.mes === m)?.quantidade || 0;
             return (
-              <Select.Option key={m} value={m}>{meses[m]} ({qtd})</Select.Option>
+              <Select.Option key={m} value={m}>{mesesNome[m]} ({qtd})</Select.Option>
             );
           })}
         </Select>
+        <Button
+          type="primary"
+          icon={<FilePdfOutlined />}
+          onClick={gerarPdf}
+          disabled={rpsList.length === 0}
+          danger
+        >
+          Gerar PDF
+        </Button>
       </Space>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
