@@ -60,24 +60,6 @@ const AppContent: React.FC = () => {
       ),
     },
     {
-      key: 'recepcionar',
-      label: 'Recepcionar Lote',
-      icon: <SendOutlined />,
-      children: <RecepcionarLote />,
-    },
-    {
-      key: 'situacao',
-      label: 'Consultar Situação',
-      icon: <SearchOutlined />,
-      children: <ConsultaSituacao />,
-    },
-    {
-      key: 'consulta-lote',
-      label: 'Consultar Lote',
-      icon: <FileSearchOutlined />,
-      children: <ConsultaLote />,
-    },
-    {
       key: 'emitir',
       label: 'Emitir RPS',
       icon: <ThunderboltOutlined />,
