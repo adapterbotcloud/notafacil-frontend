@@ -25,9 +25,9 @@ function extrairMesAno(dataEnvio: string): string {
   return dataEnvio;
 }
 
-function buildDiscriminacao(titulo: string, dataEnvio: string): string {
+function buildDiscriminacao(titulo: string, nomeAluno: string, dataEnvio: string): string {
   const mesAno = extrairMesAno(dataEnvio);
-  return mesAno ? `${titulo} - ${mesAno}` : titulo;
+  return mesAno ? `${titulo} - ${nomeAluno} - ${mesAno}` : `${titulo} - ${nomeAluno}`;
 }
 
 const formatCurrency = (value: number) =>
@@ -139,7 +139,7 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
       key: 'discriminacao',
       width: 280,
       ellipsis: true,
-      render: (_: any, record: CobrancaComStatus) => buildDiscriminacao(record.titulo, record.dataEnvio),
+      render: (_: any, record: CobrancaComStatus) => buildDiscriminacao(record.titulo, record.nomeAluno, record.dataEnvio),
     },
     {
       title: 'Valor Pago',
@@ -200,18 +200,25 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
       message.info(`${ignoradas} cobrança(s) ignorada(s) (inválidas ou já enviadas)`);
     }
 
-    const listaRps: any[] = selectedCobrancas.map((c, index) => ({
-      id: index + 1,
-      idCobranca: c.idCobranca,
-      servico: {
-        valorServicos: c.valorPago,
-        discriminacao: buildDiscriminacao(c.titulo, c.dataEnvio),
-      },
-      tomador: {
-        cpf: c.cpfResponsavel.replace(/[.\-\/]/g, ''),
-        razaoSocial: c.responsavel,
-      },
-    }));
+    const listaRps: any[] = selectedCobrancas.map((c, index) => {
+      const partsEnvio = (c.dataEnvio || '').split('/');
+      const mesCobranca = partsEnvio.length === 3 ? parseInt(partsEnvio[1], 10) : null;
+      const anoCobranca = partsEnvio.length === 3 ? parseInt(partsEnvio[2], 10) : null;
+      return {
+        id: index + 1,
+        idCobranca: c.idCobranca,
+        mesCobranca,
+        anoCobranca,
+        servico: {
+          valorServicos: c.valorPago,
+          discriminacao: buildDiscriminacao(c.titulo, c.nomeAluno, c.dataEnvio),
+        },
+        tomador: {
+          cpf: c.cpfResponsavel.replace(/[.\-\/]/g, ''),
+          razaoSocial: c.responsavel,
+        },
+      };
+    });
 
     setLoading(true);
     setResult(null);

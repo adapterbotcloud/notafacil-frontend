@@ -34,6 +34,8 @@ interface RpsItem {
   status: number;
   protocolo: string | null;
   mensagemErro: string | null;
+  mesCobranca: number | null;
+  anoCobranca: number | null;
   createdAt: string;
 }
 
@@ -168,6 +170,12 @@ const RpsListagem: React.FC = () => {
       key: 'protocolo',
       width: 140,
       render: v => v || '—',
+    },
+    {
+      title: 'Competência',
+      key: 'competencia',
+      width: 120,
+      render: (_: any, r: RpsItem) => r.mesCobranca && r.anoCobranca ? `${String(r.mesCobranca).padStart(2, '0')}/${r.anoCobranca}` : '—',
     },
     {
       title: 'Criado em',
