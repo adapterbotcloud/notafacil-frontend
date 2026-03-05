@@ -31,7 +31,8 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     let msg = `Erro ${res.status}`;
     try {
       const json = await res.json();
-      if (json.message) msg = json.message;
+      if (json.error) msg = json.error;
+      else if (json.message) msg = json.message;
       if (json.details) msg += ' | ' + json.details.join(' | ');
     } catch {
       try {
