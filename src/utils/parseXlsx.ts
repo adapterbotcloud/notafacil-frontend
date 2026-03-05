@@ -35,6 +35,10 @@ export function parseCobrancas(file: File): Promise<{ resumo: ResumoFinanceiro; 
           const row = raw[i];
           if (!row || !row[0]) continue; // pular linhas vazias
 
+          // Filtrar apenas cobranças com título contendo 'MENSALIDADE'
+          const titulo = (row[7] || '').toString().toUpperCase();
+          if (!titulo.includes('MENSALIDADE')) continue;
+
           cobrancas.push({
             idAluno: row[0],
             nomeAluno: row[1] || '',
