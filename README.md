@@ -1,46 +1,196 @@
-# Getting Started with Create React App
+# 📝 NotaFácil - Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Interface web para o sistema de emissão de **NFS-e** (Nota Fiscal de Serviço Eletrônica).
 
-## Available Scripts
+## 🚀 Tecnologias
 
-In the project directory, you can run:
+- **React 18** + **TypeScript**
+- **Ant Design 5** (componentes UI)
+- **SheetJS (xlsx)** (leitura de planilhas)
+- **Create React App** (toolchain)
 
-### `npm start`
+## 📋 Pré-requisitos
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- Node.js 18+
+- npm 9+
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## ⚙️ Configuração
 
-### `npm test`
+### Variáveis de Ambiente
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+| Variável | Padrão | Descrição |
+|----------|--------|-----------|
+| `REACT_APP_API_URL` | `https://notafacil-api.adapterbot.cloud/api/v1` | URL base da API backend |
 
-### `npm run build`
+Para desenvolvimento local:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+echo 'REACT_APP_API_URL=http://localhost:8081/api/v1' > .env.local
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 🏃 Executando
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+# Instalar dependências
+npm install
 
-### `npm run eject`
+# Desenvolvimento
+npm start
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+# Build produção
+npm run build
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Servir build
+npx serve -s build -l 3001
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## 🔐 Login
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+O sistema exige autenticação. Credenciais padrão:
 
-## Learn More
+| Campo | Valor |
+|-------|-------|
+| Usuário | `admin` |
+| Senha | `admin123` |
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+> ⚠️ **Troque a senha padrão em produção!**
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 📱 Funcionalidades
+
+### 📤 Upload de Planilha
+- Upload de arquivos `.xlsx` ou `.xls`
+- Extração automática dos dados de cobranças
+- Exibição do resumo financeiro (valor previsto, pago, pendente, atrasado)
+- Tabela com todas as cobranças, busca e filtros
+
+### 📨 Recepcionar Lote RPS
+- Formulário completo para enviar lote de RPS
+- Adição dinâmica de múltiplos RPS
+- Dados do prestador e tomador
+- Visualização do resultado em JSON
+
+### 🔍 Consultar Situação do Lote
+- Consulta por número de protocolo
+- Exibição da resposta da prefeitura
+
+### 📋 Consultar Lote RPS
+- Consulta detalhada por protocolo
+- Exibição dos dados completos do lote
+
+### ⚡ Emitir RPS (Assíncrono)
+- Formulário para emissão de RPS em lote
+- Processamento assíncrono no backend
+
+### 🧪 Emitir RPS Teste (Síncrono)
+- **Habilitado somente após upload da planilha**
+- Dados preenchidos automaticamente da planilha:
+  - `razaoSocial` ← Responsável
+  - `cpf` ← CPF do responsável (sem máscara)
+  - `discriminacao` ← Título + mês/ano do envio
+  - `valorServicos` ← Valor pago
+- **CNPJ da empresa** obtido do JWT do usuário logado
+- **Deduplicação** por `idCobranca`:
+  - 🔵 **Pronto** — cobrança válida, pode enviar
+  - 🟠 **Inválida** — valor R$ 0, CPF ou nome ausente (tooltip com motivo)
+  - 🟢 **Já Enviada** — RPS já gerado (checkbox desabilitado)
+- Seleção: por página, todos válidos ou individual
+- Filtros por situação e status RPS
+- Linhas com cores visuais por status
+
+### 🔐 Importar Certificado Digital
+- Upload de arquivo `.p12` ou `.pfx`
+- Informar nome e senha do certificado
+
+### 👥 Gestão de Usuários (somente ADMIN)
+- Listar, criar, editar e remover usuários
+- Campos: username, senha, nome, CNPJ, perfil (ADMIN/USER)
+- Vários usuários podem pertencer à mesma empresa (mesmo CNPJ)
+- CNPJ formatado automaticamente na exibição
+
+## 📁 Estrutura do Projeto
+
+```
+src/
+├── components/
+│   ├── CobrancaTable.tsx        # Tabela de cobranças com filtros
+│   ├── FileUpload.tsx           # Área de upload de planilha
+│   ├── ResumoCard.tsx           # Cards com resumo financeiro
+│   ├── UsuarioManager.tsx       # CRUD de usuários
+│   └── nfse/
+│       ├── ConsultaLote.tsx     # Consultar lote RPS
+│       ├── ConsultaSituacao.tsx # Consultar situação do lote
+│       ├── EmitirRps.tsx        # Emitir RPS (assíncrono)
+│       ├── EmitirRpsTeste.tsx   # Emitir RPS teste (síncrono)
+│       ├── ImportarCertificado.tsx
+│       ├── RecepcionarLote.tsx  # Recepcionar lote RPS
+│       └── ResultViewer.tsx     # Visualizador de resultado JSON
+├── contexts/
+│   └── AuthContext.tsx          # Contexto de autenticação JWT
+├── pages/
+│   └── LoginPage.tsx            # Tela de login
+├── services/
+│   ├── api.ts                   # Chamadas à API (NFS-e + certificado)
+│   └── usuarioApi.ts            # Chamadas à API (CRUD usuários)
+├── types/
+│   └── Cobranca.ts              # Tipos TypeScript (Cobranca, ResumoFinanceiro)
+├── utils/
+│   └── parseXlsx.ts             # Parser de planilha xlsx/xls
+├── App.tsx                      # Componente principal com abas
+├── index.tsx                    # Entry point
+└── index.css                    # Estilos customizados
+```
+
+## 🌐 Deploy
+
+### Systemd
+
+```bash
+# Criar serviço
+sudo nano /etc/systemd/system/notafacil-frontend.service
+
+# Conteúdo:
+[Unit]
+Description=NotaFacil Frontend
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/notafacil-frontend
+ExecStart=/usr/bin/npx serve -s build -l 3001
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+
+# Ativar e iniciar
+sudo systemctl daemon-reload
+sudo systemctl enable notafacil-frontend
+sudo systemctl start notafacil-frontend
+```
+
+### Caddy (reverse proxy)
+
+```
+notafacil.adapterbot.cloud {
+    reverse_proxy localhost:3001
+}
+```
+
+## 🔗 Links
+
+| Recurso | URL |
+|---------|-----|
+| Frontend | https://notafacil.adapterbot.cloud |
+| Backend API | https://notafacil-api.adapterbot.cloud |
+| Swagger | https://notafacil-api.adapterbot.cloud/swagger-ui.html |
+| Health Check | https://notafacil-api.adapterbot.cloud/actuator/health |
+
+## 📌 Versão
+
+**v1.0.0** — MVP com upload de planilha, emissão de RPS, autenticação JWT e gestão de usuários.
+
+## 📄 Licença
+
+Projeto privado — uso interno.
