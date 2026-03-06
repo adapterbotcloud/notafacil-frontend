@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Tag, Select, Space, Statistic, Row, Col, Button, message, Alert } from 'antd';
-import { SyncOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { Card, Table, Tag, Select, Space, Statistic, Row, Col, Button, message, Alert, Popconfirm } from 'antd';
+import { SyncOutlined, CheckCircleOutlined, ClockCircleOutlined, ReloadOutlined } from '@ant-design/icons';
 import { FileTextOutlined, DollarOutlined, FilePdfOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import jsPDF from 'jspdf';
@@ -75,6 +75,36 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   const [rpsList, setRpsList] = useState<RpsItem[]>([]);
   const [resumo, setResumo] = useState<AnoMesResumo[]>([]);
   const [loading, setLoading] = useState(false);
+  const [reenviando, setReenviando] = useState(false);
+
+  const reenviarPendentes = async () => {
+    setReenviando(true);
+    try {
+      const resp = await fetch(`${API_BASE}/nfse/reenviar-pendentes`, {
+        method: 'POST',
+        headers: headers(),
+      });
+      const data = await resp.json();
+      if (data.error) {
+        message.warning(`Reenvio concluído com erro: ${data.error}`);
+      } else {
+        const qtd = data.rpsIds?.length || 0;
+        message.success(`${qtd} RPS reenviado(s) com sucesso!`);
+      }
+      // Refresh list
+      setLoading(true);
+      let url = `${API_BASE}/rps?ano=${ano}`;
+      if (mes) url += `&mes=${mes}`;
+      const r = await fetch(url, { headers: headers() });
+      setRpsList(await r.json());
+    } catch (err: any) {
+      message.error(`Erro ao reenviar: ${err.message}`);
+    } finally {
+      setReenviando(false);
+      setLoading(false);
+    }
+  };
+
   const [jobStatus, setJobStatus] = useState<{ ultimaExecucao: string | null; protocolosPendentes: number }>({ ultimaExecucao: null, protocolosPendentes: 0 });
   const [ano, setAno] = useState<number | null>(null);
   const [mes, setMes] = useState<number | null>(null);
@@ -328,6 +358,23 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
         >
           Gerar PDF
         </Button>
+        {(totalPendentes > 0 || totalFalhas > 0) && (
+          <Popconfirm
+            title="Reenviar RPS pendentes/falhos?"
+            description={`${totalPendentes + totalFalhas} RPS serão reenviados à SEFIN`}
+            onConfirm={reenviarPendentes}
+            okText="Sim, reenviar"
+            cancelText="Cancelar"
+          >
+            <Button
+              type="primary"
+              icon={<ReloadOutlined />}
+              loading={reenviando}
+            >
+              Reenviar {totalPendentes + totalFalhas} Pendente(s)
+            </Button>
+          </Popconfirm>
+        )}
       </Space>
 
       {jobStatus.ultimaExecucao && (
