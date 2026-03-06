@@ -87,8 +87,8 @@ O sistema exige autenticação. Credenciais padrão:
 - Dados preenchidos automaticamente da planilha:
   - `razaoSocial` ← Responsável
   - `cpf` ← CPF do responsável (sem máscara)
-  - `discriminacao` ← Título + mês/ano do envio
-  - `valorServicos` ← Valor pago
+  - `discriminacao` ← Título + MM/AAAA do vencimento
+  - `valorServicos` ← Valor cobrado pela escola
 - **CNPJ da empresa** obtido do JWT do usuário logado
 - **Deduplicação** por `idCobranca`:
   - 🔵 **Pronto** — cobrança válida, pode enviar
@@ -199,7 +199,13 @@ notafacil.adapterbot.cloud {
 
 ## 📌 Versão
 
-**v1.1.0** — Perfil GESTOR, listagem de RPS com filtro por competência, geração de PDF, favicon customizado.
+**v1.2.0** — Valor cobrado, competência por vencimento, refresh automático, filtro MENSALIDADE.
+
+### Changelog
+
+- **v1.2.0** — valorServicos usa Valor Cobrado, competência por Vencimento, auto-refresh na aba RPS Emitidos, filtro MENSALIDADE na importação
+- **v1.1.0** — Perfil GESTOR, listagem de RPS com filtro por competência, geração de PDF, favicon customizado
+- **v1.0.0** — MVP com upload de planilha, emissão de RPS, autenticação JWT e gestão de usuários
 
 ## 📄 Licença
 
