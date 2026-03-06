@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { Card, Button, Input, Form, Upload, message } from 'antd';
+import { Card, Button, Form, Upload, message, Input } from 'antd';
 import { SafetyCertificateOutlined, UploadOutlined } from '@ant-design/icons';
 import { importarCertificado } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ImportarCertificado: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [form] = Form.useForm();
+  const { user } = useAuth();
+
+  const certName = user?.cnpj ? `CNPJ${user.cnpj}` : '';
 
   const onFinish = async (values: any) => {
     if (!file) {
@@ -15,7 +19,7 @@ const ImportarCertificado: React.FC = () => {
     }
     setLoading(true);
     try {
-      const resp = await importarCertificado(file, values.name, values.password);
+      const resp = await importarCertificado(file, certName, values.password);
       message.success(resp);
       form.resetFields();
       setFile(null);
@@ -39,8 +43,8 @@ const ImportarCertificado: React.FC = () => {
             <Button icon={<UploadOutlined />}>Selecionar Certificado</Button>
           </Upload>
         </Form.Item>
-        <Form.Item name="name" label="Nome do certificado" rules={[{ required: true }]}>
-          <Input placeholder="meu-certificado" style={{ width: 300 }} />
+        <Form.Item label="Nome do certificado">
+          <Input value={certName} disabled style={{ width: 300 }} />
         </Form.Item>
         <Form.Item name="password" label="Senha do certificado" rules={[{ required: true }]}>
           <Input.Password style={{ width: 300 }} />
