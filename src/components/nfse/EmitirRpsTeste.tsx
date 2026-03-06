@@ -244,9 +244,6 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
 
   return (
     <Card title="🧪 Emitir RPS Teste (Síncrono)" style={{ marginBottom: 16 }}>
-      <div style={{ textAlign: "center", marginBottom: 16 }}>
-        <img src="/logo.jpg" alt="NotaFácil" style={{ height: 80 }} />
-      </div>
       <Alert
         message={`CNPJ da Empresa: ${resumo?.cnpj || '—'} | ${resumo?.razaoSocial || ''}`}
         description={
@@ -317,6 +314,23 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
           Limpar Seleção
         </Button>
       </Space>
+
+      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span>
+          <strong>{selecionadasValidas}</strong> cobrança(s) válida(s) selecionada(s) — Total: <strong>{formatCurrency(totalSelecionado)}</strong>
+        </span>
+        <Button
+          type="primary"
+          onClick={handleEmitir}
+          loading={loading}
+          icon={<ExperimentOutlined />}
+          size="large"
+          disabled={selecionadasValidas === 0}
+          danger
+        >
+          Emitir {selecionadasValidas} RPS
+        </Button>
+      </div>
 
       <Table
         rowSelection={{
