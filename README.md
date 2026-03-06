@@ -1,212 +1,69 @@
 # 📝 NotaFácil - Frontend
 
-Interface web para o sistema de emissão de **NFS-e** (Nota Fiscal de Serviço Eletrônica).
+Interface web para emissão de **NFS-e** (Nota Fiscal de Serviço Eletrônica) — Fortaleza/CE.
 
 ## 🚀 Tecnologias
 
 - **React 18** + **TypeScript**
 - **Ant Design 5** (componentes UI)
-- **SheetJS (xlsx)** (leitura de planilhas)
-- **jsPDF + autoTable** (geração de PDF)
-- **Create React App** (toolchain)
+- **jsPDF** + **jspdf-autotable** (geração de PDF)
+- **XLSX** (leitura de planilhas)
 
-## 📋 Pré-requisitos
+## 📋 Funcionalidades
 
-- Node.js 18+
-- npm 9+
+### Abas do Sistema
+
+| Aba | Acesso | Descrição |
+|-----|--------|-----------|
+| **Upload Planilha** | Todos | Upload de planilha de cobranças (.xlsx), parsing e validação |
+| **Emitir RPS** | Todos* | Envio de RPS para SEFIN (*requer upload + certificado importado) |
+| **RPS Emitidos** | Todos | Listagem com filtros (ano, mês, status), resumo, PDF, reenvio |
+| **Certificado** | Todos | Status do certificado digital (ADMIN/GESTOR: importar/atualizar) |
+| **Usuários** | ADMIN/GESTOR | Gestão de usuários (CRUD) |
+
+### Destaques
+
+- **Deduplicação**: Verifica RPS existentes antes de emitir (por idCobrança)
+- **Validação visual**: Cobranças inválidas (valor=0, CPF vazio) marcadas em vermelho
+- **Job status**: Alerta em tempo real do monitoramento de protocolos (polling 30s)
+- **Reenvio**: Botão para reenviar RPS com status Pendente/Falha
+- **Tooltip de erro**: Hover no status mostra mensagem de erro da SEFIN
+- **Filtro por status**: Pendente, Enviando, Enviado, Falha, Processado
+- **PDF**: Relatório de RPS emitidos por competência
+- **Responsivo**: Layout adaptado para mobile, tablet e desktop
+- **Logo personalizada**: Header e tela de login
+
+### Regras de Negócio (Frontend)
+
+- Aba "Emitir RPS" bloqueada sem upload ou sem certificado (tooltip com motivo)
+- USER vê certificado somente leitura
+- GESTOR não vê/edita usuários ADMIN nem altera CNPJ
 
 ## ⚙️ Configuração
 
-### Variáveis de Ambiente
-
-| Variável | Padrão | Descrição |
-|----------|--------|-----------|
-| `REACT_APP_API_URL` | `https://notafacil-api.adapterbot.cloud/api/v1` | URL base da API backend |
-
-Para desenvolvimento local:
-
 ```bash
-echo 'REACT_APP_API_URL=http://localhost:8081/api/v1' > .env.local
+# .env
+REACT_APP_API_URL=https://notafacil-api.adapterbot.cloud/api/v1
 ```
 
 ## 🏃 Executando
 
 ```bash
-# Instalar dependências
 npm install
-
-# Desenvolvimento
-npm start
-
-# Build produção
-npm run build
-
-# Servir build
-npx serve -s build -l 3001
-```
-
-## 🔐 Login
-
-O sistema exige autenticação. Credenciais padrão:
-
-| Campo | Valor |
-|-------|-------|
-| Usuário | `admin` |
-| Senha | `admin123` |
-
-> ⚠️ **Troque a senha padrão em produção!**
-
-## 📱 Funcionalidades
-
-### 📤 Upload de Planilha
-- Upload de arquivos `.xlsx` ou `.xls`
-- Extração automática dos dados de cobranças
-- Exibição do resumo financeiro (valor previsto, pago, pendente, atrasado)
-- Tabela com todas as cobranças, busca e filtros
-
-### 📨 Recepcionar Lote RPS
-- Formulário completo para enviar lote de RPS
-- Adição dinâmica de múltiplos RPS
-- Dados do prestador e tomador
-- Visualização do resultado em JSON
-
-### 🔍 Consultar Situação do Lote
-- Consulta por número de protocolo
-- Exibição da resposta da prefeitura
-
-### 📋 Consultar Lote RPS
-- Consulta detalhada por protocolo
-- Exibição dos dados completos do lote
-
-### ⚡ Emitir RPS (Assíncrono)
-- Formulário para emissão de RPS em lote
-- Processamento assíncrono no backend
-
-### ⚡ Emitir RPS
-- **Habilitado somente após upload da planilha**
-- Dados preenchidos automaticamente da planilha:
-  - `razaoSocial` ← Responsável
-  - `cpf` ← CPF do responsável (sem máscara)
-  - `discriminacao` ← Título + MM/AAAA do vencimento
-  - `valorServicos` ← Valor cobrado pela escola
-- **CNPJ da empresa** obtido do JWT do usuário logado
-- **Deduplicação** por `idCobranca`:
-  - 🔵 **Pronto** — cobrança válida, pode enviar
-  - 🟠 **Inválida** — valor R$ 0, CPF ou nome ausente (tooltip com motivo)
-  - 🟢 **Já Enviada** — RPS já gerado (checkbox desabilitado)
-- Seleção: por página, todos válidos ou individual
-- Filtros por situação e status RPS
-- Linhas com cores visuais por status
-
-### 📊 RPS Emitidos
-- Listagem de todos os RPS salvos no banco
-- Filtro por **ano** e **mês da cobrança** (competência)
-- Cards de resumo: total, valor, pendentes, enviados, falhas
-- **Geração de PDF** (relatório landscape A4)
-- Coluna de competência (MM/AAAA)
-
-### 🔐 Importar Certificado Digital (ADMIN e GESTOR)
-- Upload de arquivo `.p12` ou `.pfx`
-- Informar nome e senha do certificado
-
-### 👥 Gestão de Usuários (ADMIN e GESTOR)
-- Listar, criar, editar e remover usuários
-- Campos: username, senha, nome, CNPJ, perfil (ADMIN/GESTOR/USER)
-- **GESTOR**: CNPJ preenchido automaticamente, só cria USER/GESTOR, opção ADMIN oculta
-- Vários usuários podem pertencer à mesma empresa (mesmo CNPJ)
-- CNPJ formatado automaticamente na exibição
-
-## 📁 Estrutura do Projeto
-
-```
-src/
-├── components/
-│   ├── CobrancaTable.tsx        # Tabela de cobranças com filtros
-│   ├── FileUpload.tsx           # Área de upload de planilha
-│   ├── ResumoCard.tsx           # Cards com resumo financeiro
-│   ├── RpsListagem.tsx          # Listagem de RPS com PDF
-│   ├── UsuarioManager.tsx       # CRUD de usuários
-│   └── nfse/
-│       ├── ConsultaLote.tsx     # Consultar lote RPS
-│       ├── ConsultaSituacao.tsx # Consultar situação do lote
-│       ├── EmitirRps.tsx        # Emitir RPS (assíncrono)
-│       ├── EmitirRpsTeste.tsx   # Emitir RPS teste (síncrono)
-│       ├── ImportarCertificado.tsx
-│       ├── RecepcionarLote.tsx  # Recepcionar lote RPS
-│       └── ResultViewer.tsx     # Visualizador de resultado JSON
-├── contexts/
-│   └── AuthContext.tsx          # Contexto de autenticação JWT
-├── pages/
-│   └── LoginPage.tsx            # Tela de login
-├── services/
-│   ├── api.ts                   # Chamadas à API (NFS-e + certificado)
-│   └── usuarioApi.ts            # Chamadas à API (CRUD usuários)
-├── types/
-│   └── Cobranca.ts              # Tipos TypeScript (Cobranca, ResumoFinanceiro)
-├── utils/
-│   └── parseXlsx.ts             # Parser de planilha xlsx/xls
-├── App.tsx                      # Componente principal com abas
-├── index.tsx                    # Entry point
-└── index.css                    # Estilos customizados
+npm start        # dev (porta 3000)
+npm run build    # produção
 ```
 
 ## 🌐 Deploy
 
-### Systemd
+- **URL**: `https://notafacil.adapterbot.cloud`
+- **Porta**: 3001 (serve -s build)
+- **Serviço**: `systemctl restart notafacil-frontend`
+- **Proxy**: Caddy reverse proxy
 
-```bash
-# Criar serviço
-sudo nano /etc/systemd/system/notafacil-frontend.service
+## 📌 Versão: v1.3.0
 
-# Conteúdo:
-[Unit]
-Description=NotaFacil Frontend
-After=network.target
-
-[Service]
-Type=simple
-WorkingDirectory=/root/notafacil-frontend
-ExecStart=/usr/bin/npx serve -s build -l 3001
-Restart=always
-RestartSec=5
-Environment=NODE_ENV=production
-
-[Install]
-WantedBy=multi-user.target
-
-# Ativar e iniciar
-sudo systemctl daemon-reload
-sudo systemctl enable notafacil-frontend
-sudo systemctl start notafacil-frontend
-```
-
-### Caddy (reverse proxy)
-
-```
-notafacil.adapterbot.cloud {
-    reverse_proxy localhost:3001
-}
-```
-
-## 🔗 Links
-
-| Recurso | URL |
-|---------|-----|
-| Frontend | https://notafacil.adapterbot.cloud |
-| Backend API | https://notafacil-api.adapterbot.cloud |
-| Swagger | https://notafacil-api.adapterbot.cloud/swagger-ui.html |
-| Health Check | https://notafacil-api.adapterbot.cloud/actuator/health |
-
-## 📌 Versão
-
-**v1.2.0** — Valor cobrado, competência por vencimento, refresh automático, filtro MENSALIDADE.
-
-### Changelog
-
-- **v1.2.0** — valorServicos usa Valor Cobrado, competência por Vencimento, auto-refresh na aba RPS Emitidos, filtro MENSALIDADE na importação
-- **v1.1.0** — Perfil GESTOR, listagem de RPS com filtro por competência, geração de PDF, favicon customizado
-- **v1.0.0** — MVP com upload de planilha, emissão de RPS, autenticação JWT e gestão de usuários
-
-## 📄 Licença
-
-Projeto privado — uso interno.
+- **v1.3.0** — Logo personalizada, layout responsivo, filtro por status, certificado visível para USER (read-only), bloqueio de emissão sem certificado
+- **v1.2.0** — Job status, reenvio, tooltip erro, deduplicação visual
+- **v1.1.0** — Perfil GESTOR, PDF, filtro competência
+- **v1.0.0** — MVP login + upload + emissão
