@@ -103,9 +103,9 @@ const AppContent: React.FC = () => {
         minHeight: 64,
         gap: 4,
       }}>
-        <Title level={4} style={{ margin: 0, color: '#1677ff', cursor: 'pointer', whiteSpace: 'nowrap' }} onClick={() => window.location.reload()}>
-          📝 NotaFácil
-        </Title>
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: 8 }} onClick={() => window.location.reload()}>
+          <img src="/logo.jpg" alt="NotaFácil" style={{ height: 40 }} />
+        </div>
         <Space wrap size={4} style={{ fontSize: 12 }}>
           <UserOutlined />
           <Text strong style={{ fontSize: 13 }}>{user?.nome}</Text>
