@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ConfigProvider, Layout, Typography, Tabs, Button, Space, theme } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ConfigProvider, Layout, Typography, Tabs, Button, Space, Tooltip, theme } from 'antd';
 import {
   UploadOutlined,
   SendOutlined,
@@ -38,6 +38,24 @@ const AppContent: React.FC = () => {
   const [cobrancas, setCobrancas] = useState<Cobranca[]>([]);
   const [rpsRefresh, setRpsRefresh] = useState(0);
 
+  const [hasCert, setHasCert] = useState<boolean | null>(null);
+
+  const checkCert = useCallback(async () => {
+    if (!user?.cnpj) return;
+    try {
+      const stored = localStorage.getItem('notafacil_user');
+      const token = stored ? JSON.parse(stored).token : null;
+      const API_BASE = process.env.REACT_APP_API_URL || 'https://notafacil-api.adapterbot.cloud/api/v1';
+      const resp = await fetch(`${API_BASE.replace(/\/api\/v1$/, '')}/certificates/check/CNPJ${user.cnpj}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await resp.json();
+      setHasCert(data.exists === true);
+    } catch { setHasCert(false); }
+  }, [user?.cnpj]);
+
+  useEffect(() => { checkCert(); }, [checkCert]);
+
   if (!isAuthenticated) return <LoginPage />;
 
   const hasUpload = cobrancas.length > 0;
@@ -62,9 +80,18 @@ const AppContent: React.FC = () => {
     },
     {
       key: 'emitir-teste',
-      label: hasUpload ? 'Emitir RPS' : 'Emitir RPS ⚠️',
+      label: (() => {
+        const reasons: string[] = [];
+        if (!hasUpload) reasons.push('Faça upload da planilha primeiro');
+        if (!hasCert) reasons.push('Certificado digital não importado');
+        const disabled = reasons.length > 0;
+        const label = disabled ? (
+          <Tooltip title={reasons.join(' | ')}><span>Emitir RPS ⚠️</span></Tooltip>
+        ) : 'Emitir RPS';
+        return label;
+      })(),
       icon: <ExperimentOutlined />,
-      disabled: !hasUpload,
+      disabled: !hasUpload || !hasCert,
       children: <EmitirRpsTeste cobrancas={cobrancas} resumo={resumo} />,
     },
     {
@@ -77,7 +104,7 @@ const AppContent: React.FC = () => {
       key: 'certificado',
       label: 'Certificado',
       icon: <SafetyCertificateOutlined />,
-      children: <ImportarCertificado readOnly={!(isAdmin || isGestor)} />,
+      children: <ImportarCertificado readOnly={!(isAdmin || isGestor)} onCertChange={checkCert} />,
     },
     ...((isAdmin || isGestor) ? [{
       key: 'usuarios',

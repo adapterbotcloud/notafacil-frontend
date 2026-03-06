@@ -32,7 +32,7 @@ const formatDate = (iso: string | undefined) => {
   return `${hh}:${mm} ${dd}/${mo}/${yy}`;
 };
 
-const ImportarCertificado: React.FC<{ readOnly?: boolean }> = ({ readOnly = false }) => {
+const ImportarCertificado: React.FC<{ readOnly?: boolean; onCertChange?: () => void }> = ({ readOnly = false, onCertChange }) => {
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
   const [file, setFile] = useState<File | null>(null);
@@ -73,6 +73,7 @@ const ImportarCertificado: React.FC<{ readOnly?: boolean }> = ({ readOnly = fals
       form.resetFields();
       setFile(null);
       await checkCert();
+      onCertChange?.();
     } catch (err: any) {
       message.error(err.message);
     } finally {
