@@ -94,8 +94,11 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
       }
       // Refresh list
       setLoading(true);
-      let url = `${API_BASE}/rps?ano=${ano}`;
-      if (mes) url += `&mes=${mes}`;
+      let url = `${API_BASE}/rps`;
+      const params: string[] = [];
+      if (ano) params.push(`ano=${ano}`);
+      if (mes) params.push(`mes=${mes}`);
+      if (params.length > 0) url += '?' + params.join('&');
       const r = await fetch(url, { headers: headers() });
       setRpsList(await r.json());
     } catch (err: any) {
@@ -124,10 +127,12 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   }, [refreshKey]);
 
   useEffect(() => {
-    if (!ano) return;
     setLoading(true);
-    let url = `${API_BASE}/rps?ano=${ano}`;
-    if (mes) url += `&mes=${mes}`;
+    let url = `${API_BASE}/rps`;
+    const params: string[] = [];
+    if (ano) params.push(`ano=${ano}`);
+    if (mes) params.push(`mes=${mes}`);
+    if (params.length > 0) url += '?' + params.join('&');
 
     fetch(url, { headers: headers() })
       .then(r => r.json())
