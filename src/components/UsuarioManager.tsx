@@ -165,7 +165,7 @@ const UsuarioManager: React.FC = () => {
       title={<span><UserOutlined /> Gestão de Usuários</span>}
       extra={
         <Space>
-          {(isAdmin || isGestor) && (
+          {isAdmin && (
             <Button icon={<BankOutlined />} onClick={() => abrirEmpresaModal()}>
               Nova Empresa
             </Button>
@@ -195,9 +195,9 @@ const UsuarioManager: React.FC = () => {
               { title: 'Alíquota', dataIndex: 'aliquota', key: 'aliq', width: 100, render: (v: number) => v ? `${(v * 100).toFixed(2)}%` : '' },
               {
                 title: 'Ações', key: 'acoes', width: 80,
-                render: (_: any, record: EmpresaDTO) => (
+                render: (_: any, record: EmpresaDTO) => isAdmin ? (
                   <Button icon={<EditOutlined />} size="small" onClick={() => abrirEmpresaModal(record)} />
-                ),
+                ) : null,
               },
             ]}
           />
