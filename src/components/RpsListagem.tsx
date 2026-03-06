@@ -69,7 +69,7 @@ const formatCpf = (cpf: string) => {
   return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 };
 
-const RpsListagem: React.FC = () => {
+const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   const [rpsList, setRpsList] = useState<RpsItem[]>([]);
   const [resumo, setResumo] = useState<AnoMesResumo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -87,7 +87,7 @@ const RpsListagem: React.FC = () => {
         }
       })
       .catch(() => {});
-  }, []);
+  }, [refreshKey]);
 
   useEffect(() => {
     if (!ano) return;
@@ -100,7 +100,7 @@ const RpsListagem: React.FC = () => {
       .then(data => setRpsList(data))
       .catch(() => message.error('Erro ao carregar RPS'))
       .finally(() => setLoading(false));
-  }, [ano, mes]);
+  }, [ano, mes, refreshKey]);
 
   const anos = Array.from(new Set(resumo.map(r => r.ano))).sort((a, b) => b - a);
   const mesesDisponiveis = resumo.filter(r => r.ano === ano).map(r => r.mes).sort((a, b) => b - a);

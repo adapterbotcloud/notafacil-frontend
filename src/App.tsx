@@ -36,6 +36,7 @@ const AppContent: React.FC = () => {
   const { user, logout, isAuthenticated, isAdmin, isGestor } = useAuth();
   const [resumo, setResumo] = useState<ResumoFinanceiro | null>(null);
   const [cobrancas, setCobrancas] = useState<Cobranca[]>([]);
+  const [rpsRefresh, setRpsRefresh] = useState(0);
 
   if (!isAuthenticated) return <LoginPage />;
 
@@ -70,7 +71,7 @@ const AppContent: React.FC = () => {
       key: 'rps-listagem',
       label: 'RPS Emitidos',
       icon: <FileTextOutlined />,
-      children: <RpsListagem />,
+      children: <RpsListagem refreshKey={rpsRefresh} />,
     },
     ...((isAdmin || isGestor) ? [{
       key: 'certificado',
@@ -115,6 +116,7 @@ const AppContent: React.FC = () => {
         <Tabs
           defaultActiveKey="upload"
           items={tabItems}
+          onChange={(key) => { if (key === 'rps-listagem') setRpsRefresh(prev => prev + 1); }}
           size="large"
           type="card"
         />
