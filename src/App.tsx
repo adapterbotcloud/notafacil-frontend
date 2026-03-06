@@ -93,32 +93,37 @@ const AppContent: React.FC = () => {
     <Layout style={{ minHeight: '100vh', background: '#f0f2f5' }}>
       <Header style={{
         background: '#fff',
-        padding: '0 24px',
+        padding: '0 12px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+        flexWrap: 'wrap',
+        height: 'auto',
+        minHeight: 64,
+        gap: 4,
       }}>
-        <Title level={3} style={{ margin: 0, color: '#1677ff', cursor: 'pointer' }} onClick={() => window.location.reload()}>
+        <Title level={4} style={{ margin: 0, color: '#1677ff', cursor: 'pointer', whiteSpace: 'nowrap' }} onClick={() => window.location.reload()}>
           📝 NotaFácil
         </Title>
-        <Space>
+        <Space wrap size={4} style={{ fontSize: 12 }}>
           <UserOutlined />
-          <Text strong>{user?.nome}</Text>
-          <Text type="secondary">({user?.role})</Text>
-          <Text type="secondary">| CNPJ: {cnpjFormatado}</Text>
-          <Button icon={<LogoutOutlined />} onClick={logout} type="text" danger>
+          <Text strong style={{ fontSize: 13 }}>{user?.nome}</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>({user?.role})</Text>
+          <Text type="secondary" className="hide-mobile" style={{ fontSize: 12 }}>| CNPJ: {cnpjFormatado}</Text>
+          <Button icon={<LogoutOutlined />} onClick={logout} type="text" danger size="small">
             Sair
           </Button>
         </Space>
       </Header>
-      <Content style={{ padding: '24px', maxWidth: 1400, margin: '0 auto', width: '100%' }}>
+      <Content style={{ padding: '8px 12px', maxWidth: 1400, margin: '0 auto', width: '100%' }}>
         <Tabs
           defaultActiveKey="upload"
           items={tabItems}
           onChange={(key) => { if (key === 'rps-listagem') setRpsRefresh(prev => prev + 1); }}
-          size="large"
+          size="middle"
           type="card"
+          tabBarStyle={{ overflowX: 'auto' }}
         />
       </Content>
     </Layout>

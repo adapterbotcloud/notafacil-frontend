@@ -31,7 +31,7 @@ const LoginPage: React.FC = () => {
     }}>
       <Card
         style={{
-          width: 400,
+          width: "100%", maxWidth: 400, padding: "0 16px",
           borderRadius: 16,
           boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
         }}

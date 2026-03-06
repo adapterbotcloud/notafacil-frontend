@@ -8,3 +8,72 @@
 .row-ja-enviada td, .row-invalida td {
   color: #999 !important;
 }
+
+/* Responsivo - Mobile & Tablet */
+@media (max-width: 576px) {
+  .hide-mobile {
+    display: none !important;
+  }
+  
+  .ant-tabs-nav-list {
+    flex-wrap: wrap;
+  }
+  
+  .ant-tabs-tab {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+  }
+  
+  .ant-table {
+    font-size: 12px;
+  }
+  
+  .ant-card-body {
+    padding: 12px !important;
+  }
+  
+  .ant-statistic-title {
+    font-size: 12px !important;
+  }
+  
+  .ant-statistic-content {
+    font-size: 18px !important;
+  }
+  
+  .ant-form-item {
+    margin-bottom: 12px !important;
+  }
+  
+  .ant-descriptions-item-label,
+  .ant-descriptions-item-content {
+    padding: 6px 8px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .ant-table-wrapper {
+    overflow-x: auto;
+  }
+  
+  .ant-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  .ant-col {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+}
+
+/* Viewport meta - prevenir zoom acidental em inputs */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+@media (min-width: 577px) {
+  input, select, textarea {
+    font-size: inherit !important;
+  }
+}
