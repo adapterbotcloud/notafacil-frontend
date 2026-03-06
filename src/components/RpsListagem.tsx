@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Tag, Select, Space, Statistic, Row, Col, Button, message, Alert, Popconfirm } from 'antd';
+import { Card, Table, Tag, Select, Space, Statistic, Row, Col, Button, message, Alert, Popconfirm, Tooltip } from 'antd';
 import { SyncOutlined, CheckCircleOutlined, ClockCircleOutlined, ReloadOutlined } from '@ant-design/icons';
 import { FileTextOutlined, DollarOutlined, FilePdfOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -285,9 +285,13 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
       dataIndex: 'status',
       key: 'status',
       width: 110,
-      render: (s: number) => {
+      render: (s: number, record: RpsItem) => {
         const info = statusMap[s] || { label: `${s}`, color: 'default' };
-        return <Tag color={info.color}>{info.label}</Tag>;
+        const tag = <Tag color={info.color}>{info.label}</Tag>;
+        if (record.mensagemErro) {
+          return <Tooltip title={record.mensagemErro} color="red">{tag}</Tooltip>;
+        }
+        return tag;
       },
     },
     {
