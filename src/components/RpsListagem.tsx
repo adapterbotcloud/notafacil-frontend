@@ -52,6 +52,7 @@ const statusMap: Record<number, { label: string; color: string }> = {
   1: { label: 'Enviando', color: 'blue' },
   2: { label: 'Enviado', color: 'green' },
   3: { label: 'Falha', color: 'red' },
+  4: { label: 'Processado', color: 'green' },
 };
 
 const statusLabel = (s: number) => (statusMap[s] || { label: `${s}` }).label;
@@ -109,6 +110,7 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   const totalPendentes = rpsList.filter(r => r.status === 0).length;
   const totalEnviados = rpsList.filter(r => r.status === 2).length;
   const totalFalhas = rpsList.filter(r => r.status === 3).length;
+  const totalProcessados = rpsList.filter(r => r.status === 4).length;
 
   const gerarPdf = () => {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
@@ -123,7 +125,7 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 28);
 
     doc.setFontSize(10);
-    doc.text(`Total: ${rpsList.length} RPS  |  Valor: ${formatCurrency(totalValor)}  |  Pendentes: ${totalPendentes}  |  Enviados: ${totalEnviados}  |  Falhas: ${totalFalhas}`, 14, 35);
+    doc.text(`Total: ${rpsList.length} RPS  |  Valor: ${formatCurrency(totalValor)}  |  Pendentes: ${totalPendentes}  |  Enviados: ${totalEnviados}  |  Processados: ${totalProcessados}  |  Falhas: ${totalFalhas}`, 14, 35);
 
     const tableData = rpsList.map(r => [
       r.idCobranca || '',
@@ -157,6 +159,7 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
           const val = data.cell.raw;
           if (val === 'Enviado') data.cell.styles.textColor = [34, 139, 34];
           else if (val === 'Falha') data.cell.styles.textColor = [220, 20, 60];
+          else if (val === 'Processado') data.cell.styles.textColor = [34, 139, 34];
           else if (val === 'Pendente') data.cell.styles.textColor = [184, 134, 11];
         }
       },
@@ -249,7 +252,16 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 170,
-      render: (v: string) => v ? new Date(v).toLocaleString('pt-BR') : '',
+      render: (v: string) => {
+        if (!v) return '';
+        const d = new Date(v);
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mo = String(d.getMonth() + 1).padStart(2, '0');
+        const yy = d.getFullYear();
+        return `${hh}:${mm} ${dd}/${mo}/${yy}`;
+      },
     },
   ];
 
@@ -310,6 +322,9 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
         </Col>
         <Col xs={12} sm={4}>
           <Statistic title="Enviados" value={totalEnviados} valueStyle={{ color: '#52c41a' }} />
+        </Col>
+        <Col xs={12} sm={4}>
+          <Statistic title="Processados" value={totalProcessados} valueStyle={{ color: '#52c41a' }} />
         </Col>
         <Col xs={12} sm={4}>
           <Statistic title="Falhas" value={totalFalhas} valueStyle={{ color: '#ff4d4f' }} />
