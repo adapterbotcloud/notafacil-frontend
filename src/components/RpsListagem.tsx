@@ -76,6 +76,7 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   const [resumo, setResumo] = useState<AnoMesResumo[]>([]);
   const [loading, setLoading] = useState(false);
   const [reenviando, setReenviando] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<number | null>(null);
 
   const reenviarPendentes = async () => {
     setReenviando(true);
@@ -353,6 +354,19 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
             );
           })}
         </Select>
+        <Select
+          placeholder="Status"
+          value={statusFilter}
+          onChange={setStatusFilter}
+          style={{ width: 150 }}
+          allowClear
+        >
+          <Select.Option value={0}>Pendente</Select.Option>
+          <Select.Option value={1}>Enviando</Select.Option>
+          <Select.Option value={2}>Enviado</Select.Option>
+          <Select.Option value={3}>Falha</Select.Option>
+          <Select.Option value={4}>Processado</Select.Option>
+        </Select>
         <Button
           type="primary"
           icon={<FilePdfOutlined />}
@@ -424,7 +438,7 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
 
       <Table
         columns={columns}
-        dataSource={rpsList}
+        dataSource={statusFilter !== null ? rpsList.filter(r => r.status === statusFilter) : rpsList}
         rowKey="id"
         loading={loading}
         scroll={{ x: 1400 }}
