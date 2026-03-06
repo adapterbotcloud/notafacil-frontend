@@ -438,7 +438,7 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
 
       <Table
         columns={columns}
-        dataSource={statusFilter !== null ? rpsList.filter(r => r.status === statusFilter) : rpsList}
+        dataSource={statusFilter != null ? rpsList.filter(r => r.status === statusFilter) : rpsList}
         rowKey="id"
         loading={loading}
         scroll={{ x: 1400 }}
