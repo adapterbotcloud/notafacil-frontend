@@ -20,10 +20,12 @@ const UsuarioManager: React.FC = () => {
   const [empresaForm] = Form.useForm();
   const { user, isGestor, isAdmin } = useAuth();
 
+  const empresasFiltradas = isGestor ? empresas.filter(e => e.cnpj === user?.cnpj) : empresas;
+
   const carregar = async () => {
     setLoading(true);
     try {
-      const [u, e] = await Promise.all([listarUsuarios(), listarEmpresas()]);
+      let [u, e] = await Promise.all([listarUsuarios(), listarEmpresas()]);
       setUsuarios(u);
       setEmpresas(e);
     } catch (err: any) {
@@ -180,7 +182,7 @@ const UsuarioManager: React.FC = () => {
         <>
           <Divider orientationMargin={0}><BankOutlined /> Empresas Cadastradas</Divider>
           <Table
-            dataSource={empresas}
+            dataSource={empresasFiltradas}
             rowKey="id"
             size="small"
             pagination={false}
@@ -242,7 +244,7 @@ const UsuarioManager: React.FC = () => {
               showSearch
               optionFilterProp="children"
             >
-              {empresas.map(e => (
+              {empresasFiltradas.map(e => (
                 <Select.Option key={e.cnpj} value={e.cnpj}>
                   {e.razaoSocial ? `${e.razaoSocial} (${formatCnpj(e.cnpj)})` : formatCnpj(e.cnpj)}
                 </Select.Option>
