@@ -131,7 +131,7 @@ const AppContent: React.FC = () => {
         gap: 4,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: 8 }} onClick={() => window.location.reload()}>
-          <img src="/logo.jpg" alt="NotaFácil" style={{ height: 40 }} />
+          <img src="/logo.jpg" alt="NotaFácil" style={{ height: 160 }} />
         </div>
         <Space wrap size={4} style={{ fontSize: 12 }}>
           <UserOutlined />
