@@ -37,6 +37,7 @@ const AppContent: React.FC = () => {
   const [resumo, setResumo] = useState<ResumoFinanceiro | null>(null);
   const [cobrancas, setCobrancas] = useState<Cobranca[]>([]);
   const [rpsRefresh, setRpsRefresh] = useState(0);
+  const [activeTab, setActiveTab] = useState('upload');
 
   const [hasCert, setHasCert] = useState<boolean | null>(null);
 
@@ -92,7 +93,7 @@ const AppContent: React.FC = () => {
       })(),
       icon: <ExperimentOutlined />,
       disabled: !hasUpload || !hasCert,
-      children: <EmitirRpsTeste cobrancas={cobrancas} resumo={resumo} />,
+      children: <EmitirRpsTeste cobrancas={cobrancas} resumo={resumo} onEmitido={() => { setActiveTab('rps-listagem'); setRpsRefresh(prev => prev + 1); }} />,
     },
     {
       key: 'rps-listagem',
@@ -145,9 +146,9 @@ const AppContent: React.FC = () => {
       </Header>
       <Content style={{ padding: '8px 12px', maxWidth: 1400, margin: '0 auto', width: '100%' }}>
         <Tabs
-          defaultActiveKey="upload"
+          activeKey={activeTab}
           items={tabItems}
-          onChange={(key) => { if (key === 'rps-listagem') setRpsRefresh(prev => prev + 1); }}
+          onChange={(key) => { setActiveTab(key); if (key === 'rps-listagem') setRpsRefresh(prev => prev + 1); }}
           size="middle"
           type="card"
           tabBarStyle={{ overflowX: 'auto' }}

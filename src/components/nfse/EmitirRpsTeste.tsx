@@ -8,6 +8,7 @@ import { Cobranca, ResumoFinanceiro } from '../../types/Cobranca';
 interface EmitirRpsTesteProps {
   cobrancas: Cobranca[];
   resumo: ResumoFinanceiro | null;
+  onEmitido?: () => void;
 }
 
 type CobrancaStatus = 'valida' | 'invalida' | 'ja_enviada';
@@ -32,7 +33,7 @@ function buildDiscriminacao(titulo: string, dataEnvio: string): string {
 const formatCurrency = (value: number) =>
   value?.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) || 'R$ 0,00';
 
-const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) => {
+const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo, onEmitido }) => {
   const [loading, setLoading] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [search, setSearch] = useState('');
@@ -222,6 +223,7 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
     try {
       await emitirRpsTeste(cnpj, listaRps);
       message.success(`${listaRps.length} RPS enviado(s) com sucesso! Acompanhe na aba "RPS Emitidos".`);
+      onEmitido?.();
 
       // Atualizar lista de já enviados
       const novosEnviados = new Set(jaEnviados);
