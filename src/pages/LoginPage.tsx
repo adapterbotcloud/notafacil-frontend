@@ -37,7 +37,7 @@ const LoginPage: React.FC = () => {
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <img src="/logo.jpg" alt="NotaFácil" style={{ height: 60, marginBottom: 8 }} />
+          <img src="/logo.jpg" alt="NotaFácil" style={{ height: 120, marginBottom: 16 }} />
           <Text type="secondary">Sistema de Emissão de NFS-e</Text>
         </div>
 
