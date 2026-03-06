@@ -64,9 +64,9 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
       if (jaEnviados.has(c.idCobranca)) {
         status = 'ja_enviada';
         motivo = 'RPS já gerado para esta cobrança';
-      } else if (c.valorPago <= 0) {
+      } else if (c.valorCobrado <= 0) {
         status = 'invalida';
-        motivo = 'Valor pago = R$ 0,00';
+        motivo = 'Valor cobrado = R$ 0,00';
       } else if (!c.cpfResponsavel || c.cpfResponsavel.replace(/[.\-\/]/g, '').length < 11) {
         status = 'invalida';
         motivo = 'CPF do responsável ausente ou inválido';
@@ -139,16 +139,16 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
       key: 'discriminacao',
       width: 280,
       ellipsis: true,
-      render: (_: any, record: CobrancaComStatus) => buildDiscriminacao(record.titulo, record.dataEnvio),
+      render: (_: any, record: CobrancaComStatus) => buildDiscriminacao(record.titulo, record.vencimento),
     },
     {
-      title: 'Valor Pago',
-      dataIndex: 'valorPago',
-      key: 'valorPago',
+      title: 'Valor Cobrado',
+      dataIndex: 'valorCobrado',
+      key: 'valorCobrado',
       width: 130,
       align: 'right',
       render: (v: number) => <strong>{formatCurrency(v)}</strong>,
-      sorter: (a, b) => a.valorPago - b.valorPago,
+      sorter: (a, b) => a.valorCobrado - b.valorCobrado,
     },
     {
       title: 'Situação',
@@ -201,7 +201,7 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
     }
 
     const listaRps: any[] = selectedCobrancas.map((c, index) => {
-      const partsEnvio = (c.dataEnvio || '').split('/');
+      const partsEnvio = (c.vencimento || '').split('/');
       const mesCobranca = partsEnvio.length === 3 ? parseInt(partsEnvio[1], 10) : null;
       const anoCobranca = partsEnvio.length === 3 ? parseInt(partsEnvio[2], 10) : null;
       return {
@@ -210,8 +210,8 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
         mesCobranca,
         anoCobranca,
         servico: {
-          valorServicos: c.valorPago,
-          discriminacao: buildDiscriminacao(c.titulo, c.dataEnvio),
+          valorServicos: c.valorCobrado,
+          discriminacao: buildDiscriminacao(c.titulo, c.vencimento),
         },
         tomador: {
           cpf: c.cpfResponsavel.replace(/[.\-\/]/g, ''),
@@ -241,7 +241,7 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
 
   const totalSelecionado = cobrancasComStatus
     .filter(c => selectedKeys.includes(`${c.idCobranca}-${c.idAluno}`) && c._status === 'valida')
-    .reduce((sum, c) => sum + (c.valorPago || 0), 0);
+    .reduce((sum, c) => sum + (c.valorCobrado || 0), 0);
 
   const selecionadasValidas = cobrancasComStatus
     .filter(c => selectedKeys.includes(`${c.idCobranca}-${c.idAluno}`) && c._status === 'valida').length;
