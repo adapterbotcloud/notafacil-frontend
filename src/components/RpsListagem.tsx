@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Tag, Select, Space, Statistic, Row, Col, Button, message } from 'antd';
+import { Card, Table, Tag, Select, Space, Statistic, Row, Col, Button, message, Alert } from 'antd';
+import { SyncOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { FileTextOutlined, DollarOutlined, FilePdfOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import jsPDF from 'jspdf';
@@ -74,6 +75,7 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   const [rpsList, setRpsList] = useState<RpsItem[]>([]);
   const [resumo, setResumo] = useState<AnoMesResumo[]>([]);
   const [loading, setLoading] = useState(false);
+  const [jobStatus, setJobStatus] = useState<{ ultimaExecucao: string | null; protocolosPendentes: number }>({ ultimaExecucao: null, protocolosPendentes: 0 });
   const [ano, setAno] = useState<number | null>(null);
   const [mes, setMes] = useState<number | null>(null);
 
@@ -102,6 +104,30 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
       .catch(() => message.error('Erro ao carregar RPS'))
       .finally(() => setLoading(false));
   }, [ano, mes, refreshKey]);
+
+  // Poll job status
+  useEffect(() => {
+    const fetchJobStatus = () => {
+      fetch(`${API_BASE}/rps/job-status`, { headers: headers() })
+        .then(r => r.json())
+        .then(setJobStatus)
+        .catch(() => {});
+    };
+    fetchJobStatus();
+    const interval = setInterval(fetchJobStatus, 30_000); // a cada 30s
+    return () => clearInterval(interval);
+  }, [refreshKey]);
+
+  const formatJobDate = (iso: string | null) => {
+    if (!iso) return 'Nunca';
+    const d = new Date(iso);
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mo = String(d.getMonth() + 1).padStart(2, '0');
+    const yy = d.getFullYear();
+    return `${hh}:${mm} ${dd}/${mo}/${yy}`;
+  };
 
   const anos = Array.from(new Set(resumo.map(r => r.ano))).sort((a, b) => b - a);
   const mesesDisponiveis = resumo.filter(r => r.ano === ano).map(r => r.mes).sort((a, b) => b - a);
@@ -303,6 +329,20 @@ const RpsListagem: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
           Gerar PDF
         </Button>
       </Space>
+
+      {jobStatus.ultimaExecucao && (
+        <Alert
+          style={{ marginBottom: 16 }}
+          type={jobStatus.protocolosPendentes > 0 ? 'info' : 'success'}
+          icon={jobStatus.protocolosPendentes > 0 ? <SyncOutlined spin /> : <CheckCircleOutlined />}
+          showIcon
+          message={
+            jobStatus.protocolosPendentes > 0
+              ? <span><ClockCircleOutlined /> Monitorando {jobStatus.protocolosPendentes} protocolo(s) pendente(s) — Última verificação: {formatJobDate(jobStatus.ultimaExecucao)} (a cada 3 min)</span>
+              : <span>Nenhum protocolo pendente — Última verificação: {formatJobDate(jobStatus.ultimaExecucao)}</span>
+          }
+        />
+      )}
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={12} sm={6}>
