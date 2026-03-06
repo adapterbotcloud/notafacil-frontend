@@ -4,7 +4,6 @@ import { ExperimentOutlined, SearchOutlined, WarningOutlined, CheckCircleOutline
 import type { ColumnsType } from 'antd/es/table';
 import { emitirRpsTeste, verificarRpsExistentes, RpsTesteItem } from '../../services/api';
 import { Cobranca, ResumoFinanceiro } from '../../types/Cobranca';
-import ResultViewer from './ResultViewer';
 
 interface EmitirRpsTesteProps {
   cobrancas: Cobranca[];
@@ -35,7 +34,6 @@ const formatCurrency = (value: number) =>
 
 const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) => {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [search, setSearch] = useState('');
   const [filtroSituacao, setFiltroSituacao] = useState<string | null>(null);
@@ -221,11 +219,9 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
     });
 
     setLoading(true);
-    setResult(null);
     try {
-      const resp = await emitirRpsTeste(cnpj, listaRps);
-      setResult(resp);
-      message.success(`${listaRps.length} RPS emitidos com sucesso!`);
+      await emitirRpsTeste(cnpj, listaRps);
+      message.success(`${listaRps.length} RPS enviado(s) com sucesso! Acompanhe na aba "RPS Emitidos".`);
 
       // Atualizar lista de já enviados
       const novosEnviados = new Set(jaEnviados);
@@ -363,7 +359,6 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
         </Button>
       </div>
 
-      <ResultViewer data={result} />
     </Card>
   );
 };
