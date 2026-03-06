@@ -244,6 +244,9 @@ const EmitirRpsTeste: React.FC<EmitirRpsTesteProps> = ({ cobrancas, resumo }) =>
 
   return (
     <Card title="🧪 Emitir RPS Teste (Síncrono)" style={{ marginBottom: 16 }}>
+      <div style={{ textAlign: "center", marginBottom: 16 }}>
+        <img src="/logo.jpg" alt="NotaFácil" style={{ height: 80 }} />
+      </div>
       <Alert
         message={`CNPJ da Empresa: ${resumo?.cnpj || '—'} | ${resumo?.razaoSocial || ''}`}
         description={
