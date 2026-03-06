@@ -73,12 +73,12 @@ const AppContent: React.FC = () => {
       icon: <FileTextOutlined />,
       children: <RpsListagem refreshKey={rpsRefresh} />,
     },
-    ...((isAdmin || isGestor) ? [{
+    {
       key: 'certificado',
       label: 'Certificado',
       icon: <SafetyCertificateOutlined />,
-      children: <ImportarCertificado />,
-    }] : []),
+      children: <ImportarCertificado readOnly={!(isAdmin || isGestor)} />,
+    },
     ...((isAdmin || isGestor) ? [{
       key: 'usuarios',
       label: 'Usuários',

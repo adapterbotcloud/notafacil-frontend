@@ -32,7 +32,7 @@ const formatDate = (iso: string | undefined) => {
   return `${hh}:${mm} ${dd}/${mo}/${yy}`;
 };
 
-const ImportarCertificado: React.FC = () => {
+const ImportarCertificado: React.FC<{ readOnly?: boolean }> = ({ readOnly = false }) => {
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
   const [file, setFile] = useState<File | null>(null);
@@ -108,7 +108,7 @@ const ImportarCertificado: React.FC = () => {
         />
       )}
 
-      <Form form={form} layout="vertical" onFinish={onFinish}>
+      {!readOnly && <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item label="Certificado (.p12 / .pfx)" required>
           <Upload
             accept=".p12,.pfx"
@@ -130,7 +130,7 @@ const ImportarCertificado: React.FC = () => {
             {certInfo?.exists ? 'Atualizar Certificado' : 'Importar Certificado'}
           </Button>
         </Form.Item>
-      </Form>
+      </Form>}
     </Card>
   );
 };
